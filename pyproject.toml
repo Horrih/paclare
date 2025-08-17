@@ -1,0 +1,29 @@
+[project]
+name = "paclare"
+version = "0.1.0"
+description = "Maintain your installed packages from a source file"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+paclare = "paclare.main:main"
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.5",
+    "mypy>=1.17.1",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.11",
+]
