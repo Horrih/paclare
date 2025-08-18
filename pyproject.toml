@@ -5,3 +5,10 @@ description = "Maintain your installed packages from a source file"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
+
+[project.scripts]
+pacsource = "pacsource.main:main"
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
