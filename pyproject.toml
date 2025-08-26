@@ -1,5 +1,5 @@
 [project]
-name = "pacsource"
+name = "paclare"
 version = "0.1.0"
 description = "Maintain your installed packages from a source file"
 readme = "README.md"
@@ -7,7 +7,7 @@ requires-python = ">=3.13"
 dependencies = []
 
 [project.scripts]
-pacsource = "pacsource.main:main"
+paclare = "paclare.main:main"
 
 [build-system]
 requires = ["uv_build"]
