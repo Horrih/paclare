@@ -24,6 +24,7 @@ def main() -> None:
     elif config.command == "sync":
         sync_packages(config)
     # Argparse de rang 2
+    # Filtre action par package manager
 
 
 @dataclasses.dataclass
