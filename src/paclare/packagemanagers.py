@@ -15,6 +15,18 @@ class PackageManager:
 
 PACKAGE_MANAGERS_DEFAULTS = [
     PackageManager(
+        name="flatpak",
+        list_cmd="flatpak list --app --columns=application | tail -n +1",
+        install_cmd="flatpak install",
+        uninstall_cmd="flatpak uninstall",
+    ),
+    PackageManager(
+        name="uv",
+        list_cmd="uv tool list | grep -v '\\- ' | cut -f 1 -d ' '",
+        install_cmd="uv tool install",
+        uninstall_cmd="uv tool uninstall",
+    ),
+    PackageManager(
         name="pacman",
         list_cmd='pacman -Qeq | grep -v "$(pacman -Qqm)"',
         install_cmd="sudo pacman -S",
@@ -27,9 +39,9 @@ PACKAGE_MANAGERS_DEFAULTS = [
         uninstall_cmd="paru -Rns",
     ),
     PackageManager(
-        name="flatpak",
-        list_cmd="flatpak list --app --columns=application | tail -n +1",
-        install_cmd="flatpak install",
-        uninstall_cmd="flatpak uninstall",
+        name="yay",
+        list_cmd="yay -Qeqm",
+        install_cmd="yay -S",
+        uninstall_cmd="yay -Rns",
     ),
 ]
