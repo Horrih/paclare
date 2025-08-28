@@ -13,11 +13,10 @@ from paclare.logs import init_logs, logger
 
 
 @dataclasses.dataclass
-class OptionsSync:
-    """Configuration parameters passed to the CLi for the "sync" command."""
+class OptionsInit:
+    """Configuration parameters passed to the CLi for the "list" command."""
 
-    config_file: pathlib.Path  #: Where to find the config file
-    dry_run: bool  #: Do not perform any install/uninstall
+    output_file: pathlib.Path  #: Where to export the config file
 
 
 @dataclasses.dataclass
@@ -25,13 +24,16 @@ class OptionsList:
     """Configuration parameters passed to the CLi for the "list" command."""
 
     config_file: pathlib.Path  #: Where to find the config file
+    pkg_mgr: str | None = ""  #: Only list packages for this package manager
 
 
 @dataclasses.dataclass
-class OptionsInit:
-    """Configuration parameters passed to the CLi for the "list" command."""
+class OptionsSync:
+    """Configuration parameters passed to the CLi for the "sync" command."""
 
-    output_file: pathlib.Path  #: Where to export the config file
+    config_file: pathlib.Path  #: Where to find the config file
+    dry_run: bool  #: Do not perform any install/uninstall
+    pkg_mgr: str | None = ""  #: Only sync the specified package manager
 
 
 class _Command(enum.StrEnum):
@@ -54,9 +56,11 @@ def parse_args() -> OptionsSync | OptionsList | OptionsInit:
         init_logs(logging.INFO)
 
     if args.command == _Command.SYNC:
-        return OptionsSync(_check_config_path(args.config), args.dry_run)
+        return OptionsSync(
+            _check_config_path(args.config), args.dry_run, pkg_mgr=args.pkg_mgr
+        )
     if args.command == _Command.LIST:
-        return OptionsList(_check_config_path(args.config))
+        return OptionsList(_check_config_path(args.config), pkg_mgr=args.pkg_mgr)
     return OptionsInit(pathlib.Path(args.output))
 
 

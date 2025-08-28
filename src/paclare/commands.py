@@ -41,7 +41,12 @@ packages = [
 
 def list_packages(options: OptionsList) -> None:
     """List the installed packages for all the configured package managers."""
-    for package_manager in read_config_file(options.config_file):
+    pkg_mgrs = [
+        mgr
+        for mgr in read_config_file(options.config_file)
+        if (not options.pkg_mgr or mgr.name in options.pkg_mgr)
+    ]
+    for package_manager in pkg_mgrs:
         msg = "Here are your pacman explicitely installed packages:"
         print_section(f"{package_manager.name} | {msg}")
         packages = run_helper_command(package_manager.list_cmd)
@@ -54,7 +59,12 @@ def sync_packages(options: OptionsSync) -> None:
     If a package is in the toml config, it will be installed.
     If a package it not in the toml config it will be uninstalled.
     """
-    for package_manager, packages in read_config_file(options.config_file).items():
+    pkg_mgrs = [
+        (mgr, pkgs)
+        for mgr, pkgs in read_config_file(options.config_file).items()
+        if (not options.pkg_mgr or mgr.name in options.pkg_mgr)
+    ]
+    for package_manager, packages in pkg_mgrs:
         print_section(f"{package_manager.name} | Checking packages to install/remove")
         installed_str = run_helper_command(
             package_manager.list_cmd,
