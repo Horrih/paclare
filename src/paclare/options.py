@@ -57,7 +57,7 @@ def parse_args() -> OptionsSync | OptionsList | OptionsInit:
         return OptionsSync(_check_config_path(args.config), args.dry_run)
     if args.command == _Command.LIST:
         return OptionsList(_check_config_path(args.config))
-    return OptionsInit(args.output)
+    return OptionsInit(pathlib.Path(args.output))
 
 
 def _check_config_path(path: str) -> pathlib.Path:
@@ -167,8 +167,6 @@ def _create_init_parser(subparsers: argparse.ArgumentParser) -> None:
         help=INIT_HELP,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    init_help = """Output toml file containing an initialized config.
-Warning : only paclare's preconfigured package managers will be detected."""
     parser.add_argument("output", help="Path to output file")
     _restrict_package_manager_arg(parser)
     _base_args(parser)

@@ -1,14 +1,42 @@
 """Implementation of the main logic of paclare : its commands."""
 
+import shutil
+
 from paclare.bash import run_helper_command, run_user_command
-from paclare.config import read_config_file
+from paclare.config import PACKAGE_MANAGERS_DEFAULTS, read_config_file
 from paclare.logs import logger, print_section
 from paclare.options import OptionsInit, OptionsList, OptionsSync
+from paclare.packagemanagers import PackageManager
 
 
 def init_config(options: OptionsInit) -> None:
     """Initialize a config file from the installed packages."""
-    logger.error("Notimplemented" + options.output_file.as_posix())
+    print_section("Auto detecting installed package managers...")
+    logger.info("Only the paclare's preconfigured package managers will be checked")
+    mgr_to_pkgs = {}
+    for pkg_mgr in PACKAGE_MANAGERS_DEFAULTS:
+        is_present = shutil.which(pkg_mgr.name)
+        if is_present:
+            logger.info(
+                "Package manager %s is installed : checking installed packages",
+                pkg_mgr.name,
+            )
+            packages = sorted(run_helper_command(pkg_mgr.list_cmd)[:-1].split("\n"))
+            logger.info(" |-- Found %s packages", len(packages))
+            mgr_to_pkgs[pkg_mgr] = packages
+        else:
+            logger.info("Package manager %s is not installed : skipping", pkg_mgr.name)
+
+    def config_section(pkg_mgr: PackageManager, packages: list[str]) -> str:
+        return f"""[{pkg_mgr.name}]
+packages = [
+    {",\n    ".join('"' + pkg + '"' for pkg in packages)}
+]
+"""
+
+    with options.output_file.open("w") as f:
+        sections = [config_section(mgr, pkgs) for mgr, pkgs in mgr_to_pkgs.items()]
+        f.write("\n".join(sections))
 
 
 def list_packages(options: OptionsList) -> None:

@@ -14,6 +14,10 @@ def main() -> None:
     elif isinstance(options, OptionsInit):
         init_config(options)
 
+    # TODO
+    # - filter command
+    # - export toml command
+
 
 if __name__ == "__main__":
     main()
