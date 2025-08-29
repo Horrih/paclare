@@ -2,7 +2,7 @@
 
 import shutil
 
-from paclare.bash import run_helper_command, run_user_command
+from paclare.shell import run_helper_command, run_user_command
 from paclare.config import PACKAGE_MANAGERS_DEFAULTS, read_config_file
 from paclare.logs import logger, print_section
 from paclare.options import OptionsInit, OptionsList, OptionsSync
@@ -38,12 +38,16 @@ packages = [
         sections = [config_section(mgr, pkgs) for mgr, pkgs in mgr_to_pkgs.items()]
         f.write("\n".join(sections))
 
+    logger.info(
+        "Your config has been initialized : see %s", options.output_file.as_posix()
+    )
+
 
 def list_packages(options: OptionsList) -> None:
     """List the installed packages for all the configured package managers."""
     pkg_mgrs = [
         mgr
-        for mgr in read_config_file(options.config_file)
+        for mgr, _ in read_config_file(options.config_file)
         if (not options.pkg_mgr or mgr.name in options.pkg_mgr)
     ]
     for package_manager in pkg_mgrs:
@@ -61,7 +65,7 @@ def sync_packages(options: OptionsSync) -> None:
     """
     pkg_mgrs = [
         (mgr, pkgs)
-        for mgr, pkgs in read_config_file(options.config_file).items()
+        for mgr, pkgs in read_config_file(options.config_file)
         if (not options.pkg_mgr or mgr.name in options.pkg_mgr)
     ]
     for package_manager, packages in pkg_mgrs:

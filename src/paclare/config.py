@@ -9,7 +9,9 @@ from paclare.packagemanagers import PACKAGE_MANAGERS_DEFAULTS, PackageManager
 PRESETS = {pkg_mgr.name: pkg_mgr for pkg_mgr in PACKAGE_MANAGERS_DEFAULTS}
 
 
-def read_config_file(config_file: pathlib.Path) -> dict[PackageManager, list[str]]:
+def read_config_file(
+    config_file: pathlib.Path,
+) -> list[tuple[PackageManager, list[str]]]:
     """Read the config file."""
     print_section(f"Reading configuration from {config_file.as_posix()}")
     package_mgrs = tomllib.loads(config_file.read_text(encoding="utf-8"))
@@ -18,7 +20,7 @@ def read_config_file(config_file: pathlib.Path) -> dict[PackageManager, list[str
     logger.debug(
         "\n".join(f"|-- {mgr.name} : {len(pkgs)} packages" for mgr, pkgs in res)
     )
-    return {pkg_mgr: packages for pkg_mgr, packages in res}
+    return res
 
 
 def _read_package_manager(name: str, fields: dict) -> tuple[PackageManager, list[str]]:

@@ -13,35 +13,39 @@ class PackageManager:
     uninstall_cmd: str  #: bash command to uninstall a list of packages
 
 
-PACKAGE_MANAGERS_DEFAULTS = [
-    PackageManager(
-        name="flatpak",
-        list_cmd="flatpak list --app --columns=application | tail -n +1",
-        install_cmd="flatpak install",
-        uninstall_cmd="flatpak uninstall",
-    ),
-    PackageManager(
-        name="uv",
-        list_cmd="uv tool list | grep -v '\\- ' | cut -f 1 -d ' '",
-        install_cmd="uv tool install",
-        uninstall_cmd="uv tool uninstall",
-    ),
-    PackageManager(
-        name="pacman",
-        list_cmd='pacman -Qeq | grep -v "$(pacman -Qqm)"',
-        install_cmd="sudo pacman -S",
-        uninstall_cmd="sudo pacman -Rns",
-    ),
-    PackageManager(
-        name="paru",
-        list_cmd="paru -Qeqm",
-        install_cmd="paru -S",
-        uninstall_cmd="paru -Rns",
-    ),
-    PackageManager(
-        name="yay",
-        list_cmd="yay -Qeqm",
-        install_cmd="yay -S",
-        uninstall_cmd="yay -Rns",
-    ),
-]
+FLATPAK = PackageManager(
+    name="flatpak",
+    list_cmd="flatpak list --app --columns=application | tail -n +1",
+    install_cmd="flatpak install",
+    uninstall_cmd="flatpak uninstall",
+)
+
+UV = PackageManager(
+    name="uv",
+    list_cmd="uv tool list | grep -v '\\- ' | cut -f 1 -d ' '",
+    install_cmd="uv tool install",
+    uninstall_cmd="uv tool uninstall",
+)
+PACMAN = PackageManager(
+    name="pacman",
+    list_cmd='pacman -Qeq | grep -v "$(pacman -Qqm)"',
+    install_cmd="sudo pacman -S",
+    uninstall_cmd="sudo pacman -Rns",
+)
+
+PARU = PackageManager(
+    name="paru",
+    list_cmd="paru -Qeqm",
+    install_cmd="paru -S",
+    uninstall_cmd="paru -Rns",
+)
+
+YAY = PackageManager(
+    name="yay",
+    list_cmd="yay -Qeqm",
+    install_cmd="yay -S",
+    uninstall_cmd="yay -Rns",
+)
+
+
+PACKAGE_MANAGERS_DEFAULTS = [FLATPAK, UV, PACMAN, PARU, YAY]

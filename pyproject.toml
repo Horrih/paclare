@@ -12,3 +12,13 @@ paclare = "paclare.main:main"
 [build-system]
 requires = ["uv_build"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.5",
+    "pytest>=8.4.1",
+    "ruff>=0.12.11",
+]
