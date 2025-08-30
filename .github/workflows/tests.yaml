@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  tests:
     runs-on: astral/uv:0.8.14-python3.10-alpine
     steps:
     - name: Run tests with pytest
