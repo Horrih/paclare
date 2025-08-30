@@ -1,0 +1,13 @@
+name: Run tests with pytest
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: astral/uv:0.8.14-python3.10-alpine
+    steps:
+    - name: Run tests with pytest
+      run: uv run pytest
