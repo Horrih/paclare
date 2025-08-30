@@ -7,7 +7,13 @@ on:
 
 jobs:
   tests:
-    runs-on: astral/uv:0.8.14-python3.10-alpine
+    runs-on: ghcr.io/astral-sh/uv:python3.10-alpine
     steps:
     - name: Run tests with pytest
       run: uv run pytest
+    - name: Run mypy checker
+      run: uv run mypy .
+    - name: Run ruff linter
+      run: uv run ruff check
+    - name: Run ruff formatter
+      run: uv run ruff format check
