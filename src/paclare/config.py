@@ -2,6 +2,7 @@
 
 import pathlib
 import tomllib
+import sys
 
 from paclare.logs import fatal_error, logger, print_section
 from paclare.packagemanagers import PACKAGE_MANAGERS_DEFAULTS, PackageManager
@@ -14,6 +15,9 @@ def read_config_file(
 ) -> list[tuple[PackageManager, list[str]]]:
     """Read the config file."""
     print_section(f"Reading configuration from {config_file.as_posix()}")
+    if not config_file.exists():
+        fatal_error(f"Config path {config_file.as_posix()} does not exist.")
+
     package_mgrs = tomllib.loads(config_file.read_text(encoding="utf-8"))
     res = [_read_package_manager(name, fields) for name, fields in package_mgrs.items()]
     logger.info(f"Found {len(res)} configured package managers:")
@@ -36,10 +40,12 @@ def _read_package_manager(name: str, fields: dict) -> tuple[PackageManager, list
         uninstall_cmd=fields.get("uninstall_cmd", default_uninstall_cmd),
     )
     packages = sorted(fields.get("packages"))
-    if not pkg_mgr.list_cmd:
-        fatal_error(f'Missing "list_cmd" setting for package manager {name}')
-    if not pkg_mgr.install_cmd:
-        fatal_error(f'Missing "install_cmd" setting for package manager {name}')
-    if not pkg_mgr.uninstall_cmd:
-        fatal_error(f'Missing "uninstall_cmd" setting for package manager {name}')
+
+    def check_missing_field(field: str) -> None:
+        if not getattr(pkg_mgr, field):
+            fatal_error(f'Missing "{field}" setting for package manager {name}')
+
+    check_missing_field("list_cmd")
+    check_missing_field("install_cmd")
+    check_missing_field("uninstall_cmd")
     return pkg_mgr, packages

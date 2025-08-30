@@ -10,14 +10,8 @@ RED = "\033[31m"
 
 
 _log_format = "%(message)s"
+logging.basicConfig(format=_log_format)
 logger = logging.getLogger("paclare")
-
-
-def init_logs(
-    lvl: logging.DEBUG | logging.INFO | logging.WARNING | logging.ERROR,
-) -> None:
-    """Init the main logger."""
-    logging.basicConfig(level=lvl, format=_log_format)
 
 
 def print_section(text: str) -> None:

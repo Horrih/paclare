@@ -3,7 +3,7 @@
 import dataclasses
 
 
-@dataclasses.dataclass(eq=False)
+@dataclasses.dataclass
 class PackageManager:
     """Represents the main commands to use with a package manager."""
 

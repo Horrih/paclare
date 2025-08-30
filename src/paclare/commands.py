@@ -2,28 +2,29 @@
 
 import shutil
 
-from paclare.shell import run_helper_command, run_user_command
-from paclare.config import PACKAGE_MANAGERS_DEFAULTS, read_config_file
 from paclare.logs import logger, print_section
 from paclare.options import OptionsInit, OptionsList, OptionsSync
 from paclare.packagemanagers import PackageManager
+from paclare.shell import run_helper_command, run_user_command
 
 
 def init_config(options: OptionsInit) -> None:
     """Initialize a config file from the installed packages."""
     print_section("Auto detecting installed package managers...")
     logger.info("Only the paclare's preconfigured package managers will be checked")
-    mgr_to_pkgs = {}
-    for pkg_mgr in PACKAGE_MANAGERS_DEFAULTS:
+    mgr_to_pkgs = []
+    for pkg_mgr in options.pkg_mgrs:
+        print("YEAH")
         is_present = shutil.which(pkg_mgr.name)
         if is_present:
+            print("PRESENT")
             logger.info(
                 "Package manager %s is installed : checking installed packages",
                 pkg_mgr.name,
             )
             packages = sorted(run_helper_command(pkg_mgr.list_cmd)[:-1].split("\n"))
             logger.info(" |-- Found %s packages", len(packages))
-            mgr_to_pkgs[pkg_mgr] = packages
+            mgr_to_pkgs.append((pkg_mgr, packages))
         else:
             logger.info("Package manager %s is not installed : skipping", pkg_mgr.name)
 
@@ -35,22 +36,18 @@ packages = [
 """
 
     with options.output_file.open("w") as f:
-        sections = [config_section(mgr, pkgs) for mgr, pkgs in mgr_to_pkgs.items()]
+        sections = [config_section(mgr, pkgs) for mgr, pkgs in mgr_to_pkgs]
         f.write("\n".join(sections))
 
     logger.info(
-        "Your config has been initialized : see %s", options.output_file.as_posix()
+        "Your config has been initialized : see %s",
+        options.output_file.as_posix(),
     )
 
 
 def list_packages(options: OptionsList) -> None:
     """List the installed packages for all the configured package managers."""
-    pkg_mgrs = [
-        mgr
-        for mgr, _ in read_config_file(options.config_file)
-        if (not options.pkg_mgr or mgr.name in options.pkg_mgr)
-    ]
-    for package_manager in pkg_mgrs:
+    for package_manager in options.pkg_mgrs:
         msg = "Here are your pacman explicitely installed packages:"
         print_section(f"{package_manager.name} | {msg}")
         packages = run_helper_command(package_manager.list_cmd)
@@ -63,12 +60,7 @@ def sync_packages(options: OptionsSync) -> None:
     If a package is in the toml config, it will be installed.
     If a package it not in the toml config it will be uninstalled.
     """
-    pkg_mgrs = [
-        (mgr, pkgs)
-        for mgr, pkgs in read_config_file(options.config_file)
-        if (not options.pkg_mgr or mgr.name in options.pkg_mgr)
-    ]
-    for package_manager, packages in pkg_mgrs:
+    for package_manager, packages in options.pkg_mgrs:
         print_section(f"{package_manager.name} | Checking packages to install/remove")
         installed_str = run_helper_command(
             package_manager.list_cmd,

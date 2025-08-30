@@ -7,33 +7,40 @@ import importlib.metadata
 import logging
 import os
 import pathlib
-import sys
 
-from paclare.logs import init_logs, logger
+from paclare.config import read_config_file
+import paclare.logs
+from paclare.packagemanagers import PACKAGE_MANAGERS_DEFAULTS, PackageManager
 
 
 @dataclasses.dataclass
 class OptionsInit:
     """Configuration parameters passed to the CLi for the "list" command."""
 
-    output_file: pathlib.Path  #: Where to export the config file
+    #: Where to export the config file
+    output_file: pathlib.Path
+
+    #: The package managers that will be checked on the system
+    pkg_mgrs: list[PackageManager]
 
 
 @dataclasses.dataclass
 class OptionsList:
     """Configuration parameters passed to the CLi for the "list" command."""
 
-    config_file: pathlib.Path  #: Where to find the config file
-    pkg_mgr: str | None = ""  #: Only list packages for this package manager
+    #: List the packages for the following package managers
+    pkg_mgrs: list[PackageManager]
 
 
 @dataclasses.dataclass
 class OptionsSync:
     """Configuration parameters passed to the CLi for the "sync" command."""
 
-    config_file: pathlib.Path  #: Where to find the config file
-    dry_run: bool  #: Do not perform any install/uninstall
-    pkg_mgr: str | None = ""  #: Only sync the specified package manager
+    #: Sync the packages for the following package managers
+    pkg_mgrs: list[tuple[PackageManager, list[str]]]
+
+    #: Do not perform any install/uninstall
+    dry_run: bool
 
 
 class _Command(enum.StrEnum):
@@ -44,33 +51,32 @@ class _Command(enum.StrEnum):
     INIT = "init"  #: Exports a toml config from the current packages
 
 
-def parse_args() -> OptionsSync | OptionsList | OptionsInit:
+def parse_args(args: list[str]) -> OptionsSync | OptionsList | OptionsInit:
     """Process the CLI arguments."""
     parser = _define_args()
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     if args.quiet:
-        init_logs(logging.WARNING)
+        paclare.logs.logger.setLevel(logging.WARNING)
     elif args.verbose:
-        init_logs(logging.DEBUG)
-    else:
-        init_logs(logging.INFO)
+        paclare.logs.logger.setLevel(logging.DEBUG)
 
     if args.command == _Command.SYNC:
-        return OptionsSync(
-            _check_config_path(args.config), args.dry_run, pkg_mgr=args.pkg_mgr
-        )
+        pkg_mgrs = [
+            (pkg_mgr, pkgs)
+            for pkg_mgr, pkgs in read_config_file(pathlib.Path(args.config))
+            if (not args.pkg_mgr or pkg_mgr.name == args.pkg_mgr)
+        ]
+        return OptionsSync(pkg_mgrs, args.dry_run)
+
     if args.command == _Command.LIST:
-        return OptionsList(_check_config_path(args.config), pkg_mgr=args.pkg_mgr)
-    return OptionsInit(pathlib.Path(args.output))
+        pkg_mgrs = [
+            pkg_mgr
+            for pkg_mgr, _ in read_config_file(pathlib.Path(args.config))
+            if (not args.pkg_mgr or pkg_mgr.name == args.pkg_mgr)
+        ]
+        return OptionsList(pkg_mgrs)
 
-
-def _check_config_path(path: str) -> pathlib.Path:
-    """Check that the configuration file path exists, exits otherwise."""
-    config_path = pathlib.Path(path)
-    if not config_path.exists():
-        logger.error(f"Config path {config_path.as_posix()} does not exist.")
-        sys.exit(1)
-    return config_path
+    return OptionsInit(pathlib.Path(args.output), PACKAGE_MANAGERS_DEFAULTS)
 
 
 def _version() -> str:
