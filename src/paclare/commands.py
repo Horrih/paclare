@@ -70,8 +70,8 @@ def sync_packages(options: OptionsSync) -> None:
         to_remove = installed_packages - set(packages)
         to_install_str = ", ".join(to_install) if to_install else "Nothing to do"
         to_remove_str = ", ".join(to_remove) if to_remove else "Nothing to do"
-        logger.info(f"Packages to install : {to_install_str}")
-        logger.info(f"Packages to remove  : {to_remove_str}")
+        logger.info("Packages to install : %s", to_install_str)
+        logger.info("Packages to remove  : %s", to_remove_str)
         if to_install:
             logger.info("Starting installs...")
             run_user_command(

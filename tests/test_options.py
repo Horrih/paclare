@@ -10,9 +10,7 @@ from paclare.packagemanagers import UV
 
 def test_options_init() -> None:
     """Test options.parse_args() for the init command."""
-    init_options: paclare.options.OptionsInit = paclare.options.parse_args(
-        ["init", "-q", "output.toml"]
-    )
+    init_options = paclare.options.parse_args(["init", "-q", "output.toml"])
     assert isinstance(init_options, paclare.options.OptionsInit)
     assert init_options.output_file.as_posix() == "output.toml"
     assert paclare.logs.logger.getEffectiveLevel() == logging.WARNING
@@ -26,7 +24,7 @@ packages = ["pkg1", "pkg2"]
     """
     toml = tmp_path / "config.toml"
     toml.write_text(config_txt)
-    sync_options: paclare.options.OptionsSync = paclare.options.parse_args(
+    sync_options = paclare.options.parse_args(
         ["sync", "-v", "-c", toml.as_posix(), "--dry-run"]
     )
 
@@ -43,9 +41,7 @@ packages = []
 """
     toml = tmp_path / "config.toml"
     toml.write_text(config_txt)
-    sync_options: paclare.options.OptionsList = paclare.options.parse_args(
-        ["list", "-c", toml.as_posix()]
-    )
+    sync_options = paclare.options.parse_args(["list", "-c", toml.as_posix()])
     assert isinstance(sync_options, paclare.options.OptionsList)
     assert paclare.logs.logger.getEffectiveLevel() == logging.DEBUG
     assert sync_options.pkg_mgrs == [UV]

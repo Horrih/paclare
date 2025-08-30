@@ -5,15 +5,18 @@ import pathlib
 
 import pytest
 
-import paclare.packagemanagers
 import paclare.commands
+import paclare.packagemanagers
 
 
-def test_list(caplog: pytest.CaptureFixture[str]) -> None:
+def test_list(caplog: pytest.LogCaptureFixture) -> None:
     """Test the 'list' main command output."""
     caplog.set_level(logging.INFO)
     pkg_mgr = paclare.packagemanagers.PackageManager(
-        name="my_pkg_mgr", list_cmd="echo pkg1", install_cmd="", uninstall_cmd=""
+        name="my_pkg_mgr",
+        list_cmd="echo pkg1",
+        install_cmd="",
+        uninstall_cmd="",
     )
     options = paclare.commands.OptionsList([pkg_mgr])
     paclare.commands.list_packages(options)
@@ -61,7 +64,7 @@ def test_sync(tmp_path: pathlib.Path) -> None:
     removed = tmp_path / "removed"
     pkg_mgr = paclare.packagemanagers.PackageManager(
         name="my_pkg_mgr",
-        list_cmd=f"echo pkg1; echo pkg2",
+        list_cmd="echo pkg1; echo pkg2",
         install_cmd=f"{define_dump_args}; dump_args {installed}",
         uninstall_cmd=f"{define_dump_args}; dump_args {removed}",
     )

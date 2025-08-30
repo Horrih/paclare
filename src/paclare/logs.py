@@ -9,8 +9,8 @@ GREY = "\033[90m"
 RED = "\033[31m"
 
 
-_log_format = "%(message)s"
-logging.basicConfig(format=_log_format)
+_LOG_FORMAT = "%(message)s"
+logging.basicConfig(format=_LOG_FORMAT, level=logging.INFO)
 logger = logging.getLogger("paclare")
 
 

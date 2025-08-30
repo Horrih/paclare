@@ -7,9 +7,10 @@ import importlib.metadata
 import logging
 import os
 import pathlib
+import typing
 
-from paclare.config import read_config_file
 import paclare.logs
+from paclare.config import read_config_file
 from paclare.packagemanagers import PACKAGE_MANAGERS_DEFAULTS, PackageManager
 
 
@@ -51,22 +52,22 @@ class _Command(enum.StrEnum):
     INIT = "init"  #: Exports a toml config from the current packages
 
 
-def parse_args(args: list[str]) -> OptionsSync | OptionsList | OptionsInit:
+def parse_args(cli_args: list[str]) -> OptionsSync | OptionsList | OptionsInit:
     """Process the CLI arguments."""
     parser = _define_args()
-    args = parser.parse_args(args)
+    args = parser.parse_args(cli_args)
     if args.quiet:
         paclare.logs.logger.setLevel(logging.WARNING)
     elif args.verbose:
         paclare.logs.logger.setLevel(logging.DEBUG)
 
     if args.command == _Command.SYNC:
-        pkg_mgrs = [
+        pkg_mgrs_packages = [
             (pkg_mgr, pkgs)
             for pkg_mgr, pkgs in read_config_file(pathlib.Path(args.config))
             if (not args.pkg_mgr or pkg_mgr.name == args.pkg_mgr)
         ]
-        return OptionsSync(pkg_mgrs, args.dry_run)
+        return OptionsSync(pkg_mgrs_packages, args.dry_run)
 
     if args.command == _Command.LIST:
         pkg_mgrs = [
@@ -137,7 +138,7 @@ def _define_args() -> argparse.ArgumentParser:
     return parser
 
 
-def _create_sync_parser(subparsers: argparse.ArgumentParser) -> None:
+def _create_sync_parser(subparsers: argparse._SubParsersAction) -> None:
     """Add the 'sync' command arguments."""
     parser = subparsers.add_parser(
         _Command.SYNC,
@@ -156,7 +157,7 @@ def _create_sync_parser(subparsers: argparse.ArgumentParser) -> None:
     _base_args(parser)
 
 
-def _create_list_parser(subparsers: argparse.ArgumentParser) -> None:
+def _create_list_parser(subparsers: argparse._SubParsersAction) -> None:
     """Add the 'list' command arguments."""
     parser = subparsers.add_parser(
         _Command.LIST,
@@ -169,7 +170,7 @@ def _create_list_parser(subparsers: argparse.ArgumentParser) -> None:
     _base_args(parser)
 
 
-def _create_init_parser(subparsers: argparse.ArgumentParser) -> None:
+def _create_init_parser(subparsers: typing.Any) -> None:
     """Add the 'init' command arguments."""
     parser = subparsers.add_parser(
         _Command.INIT,

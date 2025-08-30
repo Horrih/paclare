@@ -2,7 +2,7 @@
 
 import pathlib
 import tomllib
-import sys
+import typing
 
 from paclare.logs import fatal_error, logger, print_section
 from paclare.packagemanagers import PACKAGE_MANAGERS_DEFAULTS, PackageManager
@@ -20,7 +20,7 @@ def read_config_file(
 
     package_mgrs = tomllib.loads(config_file.read_text(encoding="utf-8"))
     res = [_read_package_manager(name, fields) for name, fields in package_mgrs.items()]
-    logger.info(f"Found {len(res)} configured package managers:")
+    logger.info("Found %s configured package managers:", len(res))
     logger.debug(
         "\n".join(f"|-- {mgr.name} : {len(pkgs)} packages" for mgr, pkgs in res)
     )
@@ -30,22 +30,26 @@ def read_config_file(
 def _read_package_manager(name: str, fields: dict) -> tuple[PackageManager, list[str]]:
     """Read the package manager options and packages from the relevant toml section."""
     preset = PRESETS.get(name)
-    default_list_cmd = preset.list_cmd if preset else None
-    default_install_cmd = preset.install_cmd if preset else None
-    default_uninstall_cmd = preset.uninstall_cmd if preset else None
+
+    def get_field(field_name: str) -> str:
+        field_value = fields.get(field_name)
+        if not field_value and preset:
+            field_value = getattr(preset, field_name)
+        if not field_value:
+            fatal_error(f'{name} : Missing "{field_name}" setting')
+        if not isinstance(field_value, str):
+            fatal_error(f'{name} : "{field_name}" should be a string')
+        return typing.cast(str, field_value)
+
     pkg_mgr = PackageManager(
         name,
-        list_cmd=fields.get("list_cmd", default_list_cmd),
-        install_cmd=fields.get("install_cmd", default_install_cmd),
-        uninstall_cmd=fields.get("uninstall_cmd", default_uninstall_cmd),
+        list_cmd=get_field("list_cmd"),
+        install_cmd=get_field("install_cmd"),
+        uninstall_cmd=get_field("uninstall_cmd"),
     )
-    packages = sorted(fields.get("packages"))
-
-    def check_missing_field(field: str) -> None:
-        if not getattr(pkg_mgr, field):
-            fatal_error(f'Missing "{field}" setting for package manager {name}')
-
-    check_missing_field("list_cmd")
-    check_missing_field("install_cmd")
-    check_missing_field("uninstall_cmd")
-    return pkg_mgr, packages
+    packages = fields.get("packages")
+    if not isinstance(packages, list) or not all(
+        isinstance(pkg, str) for pkg in packages
+    ):
+        fatal_error(f'{name} : "packages" missing, should be a list of package names')
+    return pkg_mgr, sorted(typing.cast(list[str], packages))
