@@ -26,7 +26,7 @@ need to install to have a similar setup as on the previous one.
 You may also suffer from fragmented configuration : apt, flatpak, pip, it's
 difficult to have a one size fits all solution.
 
-Paclare aims to solve these issues.
+Paclare, contraction of Package deClare, aims to solve these issues.
 
 ### A config file to rule them all
 
@@ -63,33 +63,20 @@ far more powerful but also far more complex.
 
 Paclare is a python package, it requires python3.12 or later.
 
-Currently, paclare has not been published on package managers.
+Currently, paclare has been packaged on the pypi index, so you can install
+it through pip, pipx, or uv.
 
-However, with the uv package manager installation is a breeze.
-
-#### Recommended : from git through uv, the modern python package manager
-
-Install uv if you have not done so yet : follow
-[their instructions](https://docs.astral.sh/uv/getting-started/installation/)
+I recommend uv, as it is becoming the defacto modern python package manager.
 
 ```bash
-alias paclare='uvx --from git+https://github.com/horrih/paclare paclare'
-paclare --help
-```
-
-#### The old way
-
-```bash
-git clone https://github.com/Horrih/paclare.git paclare
-cd paclare
-pip install --user
-paclare --help
+pip install paclare
+pipx install paclare
+uv tool install paclare
 ```
 
 ### Setting up your config : paclare init
 
 Let's assume that you use package managers already supported by paclare.
-You can initialize your config with the following command :
 
 ```bash
 mkdir ~/.config/paclare  # Or symlink to your dotfiles repo
