@@ -5,6 +5,15 @@ description = "Maintain your installed packages from a source file"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+authors = [
+  { name="Charles Gonnaud" },
+]
+license = "GPL-3.0-or-later"
+licence-files = ["LICENCE"]
+
+[project.urls]
+Homepage = "https://github.com/Horrih/paclare"
+Issues = "https://github.com/Horrih/paclare/issues"
 
 [project.scripts]
 paclare = "paclare.main:main"
