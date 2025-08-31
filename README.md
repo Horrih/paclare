@@ -14,6 +14,14 @@
 * [Adding a new package manager](#adding-a-new-package-manager)
 * [Contributing](#contributing)
 
+
+## Acknowledgements
+
+Thanks to [metapac](https://github.com/ripytide/metapac) for inspiring this project.
+
+Please have a look at it since it is probably more suited to your needs
+than paclare.
+
 ## Why paclare ?
 
 ### Intro
