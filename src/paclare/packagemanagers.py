@@ -37,7 +37,7 @@ DNF = PackageManager(
 UV = PackageManager(
     name="uv",
     list_cmd="uv tool list | grep -v '\\- ' | cut -f 1 -d ' '",
-    install_cmd="uv tool install",
+    install_cmd="function UV_INSTALL(){ for f in $@; do uv tool install $f; done; }; UV_INSTALL",
     uninstall_cmd="uv tool uninstall",
 )
 
