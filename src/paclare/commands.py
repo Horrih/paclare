@@ -14,10 +14,8 @@ def init_config(options: OptionsInit) -> None:
     logger.info("Only the paclare's preconfigured package managers will be checked")
     mgr_to_pkgs = []
     for pkg_mgr in options.pkg_mgrs:
-        print("YEAH")
         is_present = shutil.which(pkg_mgr.name)
         if is_present:
-            print("PRESENT")
             logger.info(
                 "Package manager %s is installed : checking installed packages",
                 pkg_mgr.name,
